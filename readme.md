@@ -4,7 +4,23 @@ A package for working w/ the Zillow API.
 
 ## Install
 
-Normal bundle install.
+In you ``application/bundles.php`` file, add the following:
+
+```php
+'zillow' => array('auto' => true),
+```
+
+### Configuration
+
+Copy the sample config provided to ``application/config/zillow.php`` and input the necessary information.
+
+### Migrations
+
+This package includes a table that will store API responses from Zillow for a year, thus preventing you from wasting API calls that you've already done before.
+
+```bash
+$ php artisan migrate zillow
+```
 
 ### Dependencies
 

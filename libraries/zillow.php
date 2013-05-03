@@ -20,12 +20,45 @@ class Zillow {
      */
     public static function __callStatic($method, $args)
     {
+        // build arguments
+        $arguments = isset($args[0]) ? (array) $args[0] : array();
+        
+        // detect error
+        if (!is_array($arguments)) trigger_error('Arguments need to be an array.');
+        
+        // sort arguments
+        ksort($arguments);
+        
         // build query
-        $arguments = isset($args[0]) ? $args[0] : array();
         $query = http_build_query(array_merge(array('zws-id' => Config::get('zillow.zwsid')), $arguments));
 
         // build endpoint
         $endpoint = 'http://www.zillow.com/webservice/'.static::camelcase($method).'.htm?'.$query;
+        
+        // attempt to retrieve from table...
+        $hash = md5($endpoint.$query);
+        $check = DB::table('zillow')->where('hash', '=', $hash)->first();
+        
+        // if cache found...
+        if ($check)
+        {
+            // calculate age
+            $age = time() - strtotime($check->created_at);
+
+            // if stale (over a year old)...
+            if ($age > 31557600)
+            {
+                // delete
+                $check->delete();
+            }
+
+            // else if NOT stale...
+            else
+            {
+                // return cached response
+                return $check->is_success ? unserialize($check->response) : false;
+            }
+        }
         
         // setup curl request
         $ch = curl_init();
@@ -40,16 +73,28 @@ class Zillow {
             #$errors = curl_error($ch);
             curl_close($ch);
             
-            // return false
-            return false;
+            // set response
+            $response = false;
         }
         else
         {
             curl_close($ch);
             
-            // return array
-            return XML::from_string($response)->to_array();
+            // set response
+            $response = XML::from_string($response)->to_array();
         }
+
+        // save response
+        DB::table('zillow')->insert(array(
+            'created_at' => strftime('%F', time()),
+            'updated_at' => strftime('%F', time()),
+            'hash' => $hash,
+            'response' => serialize($response),
+            'is_success' => $response ? 1 : 0,
+        ));
+        
+        // return
+        return $response;
     }
 
     /**
