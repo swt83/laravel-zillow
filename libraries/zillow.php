@@ -28,6 +28,13 @@ class Zillow {
         
         // sort arguments
         ksort($arguments);
+
+        // for each argument
+        foreach ($arguments as $key => $value)
+        {
+            // capitalize value
+            $arguments[$key] = strtoupper($value);
+        }
         
         // build query
         $query = http_build_query(array_merge(array('zws-id' => Config::get('zillow.zwsid')), $arguments));
@@ -56,7 +63,7 @@ class Zillow {
             else
             {
                 // return cached response
-                return $check->is_success ? unserialize($check->response) : false;
+                return $check->is_success ? array_merge(array('is_cache' => 1), unserialize($check->response)) : false;
             }
         }
         
@@ -66,6 +73,7 @@ class Zillow {
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         // catch errors
         if (curl_errno($ch))
