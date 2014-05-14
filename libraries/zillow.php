@@ -22,10 +22,10 @@ class Zillow {
     {
         // build arguments
         $arguments = isset($args[0]) ? (array) $args[0] : array();
-        
+
         // detect error
         if (!is_array($arguments)) trigger_error('Arguments need to be an array.');
-        
+
         // sort arguments
         ksort($arguments);
 
@@ -35,17 +35,17 @@ class Zillow {
             // capitalize value
             $arguments[$key] = strtoupper($value);
         }
-        
+
         // build query
         $query = http_build_query(array_merge(array('zws-id' => Config::get('zillow.zwsid')), $arguments));
 
         // build endpoint
         $endpoint = 'http://www.zillow.com/webservice/'.static::camelcase($method).'.htm?'.$query;
-        
+
         // attempt to retrieve from table...
         $hash = md5($endpoint.$query);
         $check = DB::table('zillow')->where('hash', '=', $hash)->first();
-        
+
         // if cache found...
         if ($check)
         {
@@ -56,7 +56,8 @@ class Zillow {
             if ($age > 31557600)
             {
                 // delete
-                $check->delete();
+                //$check->delete();
+                DB::table('zillow')->where('id', '=', $check->id)->delete(); // fluent obect lacks delete() method
             }
 
             // else if NOT stale...
@@ -66,7 +67,7 @@ class Zillow {
                 return $check->is_success ? array_merge(array('is_cache' => 1), unserialize($check->response)) : false;
             }
         }
-        
+
         // setup curl request
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $endpoint);
@@ -80,14 +81,14 @@ class Zillow {
         {
             #$errors = curl_error($ch);
             curl_close($ch);
-            
+
             // set response
             $response = false;
         }
         else
         {
             curl_close($ch);
-            
+
             // set response
             $response = XML::from_string($response)->to_array();
         }
@@ -100,7 +101,7 @@ class Zillow {
             'response' => serialize($response),
             'is_success' => $response ? 1 : 0,
         ));
-        
+
         // return
         return $response;
     }
