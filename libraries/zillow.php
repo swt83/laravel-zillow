@@ -57,7 +57,7 @@ class Zillow {
             {
                 // delete
                 //$check->delete();
-                DB::table('zillow')->where('id', '=', $check->id)->delete(); // fluent obect lacks delete() method
+                DB::table('zillow')->where('id', '=', $check->id)->delete(); // fluent object lacks delete() method
             }
 
             // else if NOT stale...
