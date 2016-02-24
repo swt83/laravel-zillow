@@ -1,0 +1,33 @@
+{
+    "name": "travis/zillow",
+    "description": "A PHP library for working w/ the Zillow API.",
+    "homepage": "https://github.com/swt83/php-zillow",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Scott Travis",
+            "email": "scott@swt83.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:swt83/php-ex.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:swt83/php-xml.git"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "travis/ex": "*",
+        "travis/xml": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Travis\\": "src/models/"
+        }
+    },
+    "minimum-stability": "dev"
+}
