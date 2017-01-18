@@ -21,8 +21,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "travis/ex": "*",
-        "travis/xml": "*"
+        "travis/ex": "dev-master",
+        "travis/xml": "dev-master"
     },
     "autoload": {
         "psr-0": {
