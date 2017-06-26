@@ -46,7 +46,7 @@ class Zillow
         else
         {
             // set response
-            $response = XML::from_string($response)->to_array();
+            $response = XML::fromString($response)->toArray();
         }
 
         // close connection
